@@ -14,8 +14,8 @@ Typically, developers follow some consistent practice for managing these credent
   - username/password pairs
   - authorization tokens
 
-- Register applications
-  - each application gets registered individually
+- Register client applications
+  - each client application is registered individually
 
 - Grant/Revoke credentials
   - registered applications are provisioned only specific credentials needed

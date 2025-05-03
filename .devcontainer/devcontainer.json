@@ -1,7 +1,7 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the
 // README at: https://github.com/devcontainers/templates/tree/main/src/python
 {
-	"name": "Python 3",
+	"name": "Credential Manager",
 	"build": {
 		"dockerfile": "Dockerfile",
 		"context": ".."
@@ -22,5 +22,5 @@
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
 	, "remoteUser": "root"
 
-	, "containerEnv": { "FLASK_APP": "app/app", "FLASK_DEBUG": "True"}
+	, "containerEnv": { "FLASK_APP": "app/app", "FLASK_DEBUG": "True", "APP_DEBUG": "true", "APP_DEBUG_PREFIX": "[debug]"}
 }

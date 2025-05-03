@@ -1,7 +1,18 @@
-# Install icecream for logging/debugging
+import os
+
+# Configure icecream for logging/debugging
 from icecream import ic
-ic.configureOutput(prefix='[debug]')
-ic.enable()
+app_debug = str(os.environ.get("APP_DEBUG"))
+if app_debug.upper() == "TRUE":
+    # Check if a debug prefix was defined
+    debug_prefix = os.environ.get("APP_DEBUG_PREFIX")
+    if debug_prefix == None:
+        # no debug prefix defined, so set a default
+        debug_prefix = "[debug]"
+
+    print(f"Enabling APP_DEBUG mode with message prefix:", debug_prefix)
+    ic.configureOutput(prefix=debug_prefix)
+    ic.enable()
 
 import flask
 from views.root import home_app

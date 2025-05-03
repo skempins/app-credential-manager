@@ -13,9 +13,8 @@ app = flask.Flask(__name__)
 # load external config file
 app.config.from_pyfile('settings.py')
 
-# register blueprints
+# register blueprint for the User interface
 app.register_blueprint(home_app)
-app.register_blueprint(cred_store, url_prefix='/api/credential')
 
-#ic(mycredential_store.get_credential("app1"))  # Output: user123
-#ic(mycredential_store.get_credential("auth_token"))  # Output: abc123
+# register blueprint for the API for managing credential values
+app.register_blueprint(cred_store, url_prefix='/api/credential')

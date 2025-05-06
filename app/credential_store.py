@@ -157,17 +157,20 @@ class CredentialStore:
             with sqlite3.connect(self.db_file) as conn:
                 cursor = conn.cursor()
                 cursor.execute(sql_get_client, [client_nm])
-                client_id = cursor.fetchone()[0]
-                ic(client_id)
-                if client_id is None:
+                row = cursor.fetchone()
+                if row is None:
+                    ic("Client not found")
                     return {"Error": "Client not found"}
-                
-                cursor.execute(sql_get_credential, [credential_nm])
-                credential_id = cursor.fetchone()[0]
-                ic(credential_id)
-                if credential_id is None:
-                    return {"Error": "Credential not found"}
+                client_id = row[0]
+                ic(client_id)
 
+                cursor.execute(sql_get_credential, [credential_nm])
+                row = cursor.fetchone()
+                if row is None:
+                    return {"Error": "Credential not found"}
+                credential_id = row[0]
+                ic(credential_id)
+ 
             return self.add_client_credential(client_id, credential_id)
         except sqlite3.Error as e:
             return {"Error": str(e)}
@@ -180,6 +183,7 @@ class CredentialStore:
             INNER JOIN credential ON client_credential.credential_id = credential.credential_id 
             INNER JOIN client_app ON client_credential.client_id = client_app.client_id 
             WHERE client_app.client_nm = ?
+            ORDER BY credential_nm
             """
 
         ic("Getting credentials for client...")

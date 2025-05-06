@@ -111,3 +111,86 @@ class CredentialStore:
             return True
         except sqlite3.Error as e:
             return {"Error": str(e)}
+
+    ########################
+    # Add a new client to the store.
+    def add_client(self, name):
+        sql_stmt = "INSERT INTO client_app (client_id, client_nm) VALUES (?,?)"
+
+        ic("Inserting client...")
+        id = str(uuid.uuid4())
+        ic(name, id)
+        try:
+            with sqlite3.connect(self.db_file) as conn:
+                ic(sql_stmt)
+                conn.execute(sql_stmt, [id, name])
+                conn.commit()
+            return {"ID": id}
+        except sqlite3.Error as e:
+            return {"Error": str(e)}
+
+    ########################
+    # Add a client to a credential
+    def add_client_credential(self, client_id, credential_id):
+        sql_stmt = "INSERT INTO client_credential (client_id, credential_id) VALUES (?,?)"
+
+        ic("Mapping client to credential...")
+        ic(client_id, credential_id)
+        try:
+            with sqlite3.connect(self.db_file) as conn:
+                ic(sql_stmt)
+                conn.execute(sql_stmt, [client_id, credential_id])
+                conn.commit()
+            return True
+        except sqlite3.Error as e:
+            return {"Error": str(e)}
+
+    ########################
+    # Map a client to a credential
+    def map_client_credential(self, client_nm, credential_nm):
+        sql_get_client = "SELECT client_id FROM client_app WHERE client_nm = ?"
+        sql_get_credential = "SELECT credential_id FROM credential WHERE credential_nm = ?"
+
+        ic("Mapping client to credential...")
+        ic(client_nm, credential_nm)
+        try:
+            with sqlite3.connect(self.db_file) as conn:
+                cursor = conn.cursor()
+                cursor.execute(sql_get_client, [client_nm])
+                client_id = cursor.fetchone()[0]
+                ic(client_id)
+                if client_id is None:
+                    return {"Error": "Client not found"}
+                
+                cursor.execute(sql_get_credential, [credential_nm])
+                credential_id = cursor.fetchone()[0]
+                ic(credential_id)
+                if credential_id is None:
+                    return {"Error": "Credential not found"}
+
+            return self.add_client_credential(client_id, credential_id)
+        except sqlite3.Error as e:
+            return {"Error": str(e)}
+
+    ########################
+    # Get all credentials for a client
+    def get_client_credentials(self, client_nm):
+        sql_stmt = """SELECT credential_nm 
+            FROM client_credential 
+            INNER JOIN credential ON client_credential.credential_id = credential.credential_id 
+            INNER JOIN client_app ON client_credential.client_id = client_app.client_id 
+            WHERE client_app.client_nm = ?
+            """
+
+        ic("Getting credentials for client...")
+        ic(client_nm)
+        return_value = []
+        try:
+            with sqlite3.connect(self.db_file) as conn:
+                cursor = conn.cursor()
+                cursor.execute(sql_stmt, [client_nm])
+                for row in cursor.fetchall():
+                    return_value.append(row[0])
+            return return_value
+        except sqlite3.Error as e:
+            return {"Error": str(e)}

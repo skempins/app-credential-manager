@@ -64,3 +64,45 @@ def export_all():
         return flask.jsonify({"Status": "Success"})
     else:
         return flask.jsonify({"Status": "Failure", "Message": return_value})
+
+########################
+# Add a new client to the store.
+@cred_store.route('/addclient', methods=['POST'])
+def add_client():
+    if 'name' in flask.request.form:
+        return_value = mycredential_store.add_client(flask.request.form['name'])
+        ic(return_value)
+        if "ID" in return_value:
+            return flask.jsonify({"Status": "Success", "Credential": return_value})
+        else:
+            return flask.jsonify({"Status": "Failure", "Message": return_value})
+    else:
+        return flask.jsonify({"Status": "Failure", "Message": "missing client name"})
+
+########################
+# Map a client to a credential
+@cred_store.route('/mapclientcredential', methods=['POST'])
+def map_client_credential():
+    if 'client_name' in flask.request.form:
+        if 'credential_name' in flask.request.form:
+            return_value = mycredential_store.map_client_credential(flask.request.form['client_name'], flask.request.form['credential_name'])
+            ic(return_value)
+            if type(return_value) == type(True):
+                return flask.jsonify({"Status": "Success"})
+            else:
+                return flask.jsonify({"Status": "Failure", "Message": return_value})
+        else:
+            return flask.jsonify({"Status": "Failure", "Message": "missing credential name"})
+    else:
+        return flask.jsonify({"Status": "Failure", "Message": "missing client name"})
+
+########################
+# get Client credentials
+@cred_store.route('/getclientcredentials/<client>', methods=['GET'])
+def get_client_credentials(client):
+    return_value = mycredential_store.get_client_credentials(client)
+    ic(return_value)
+    if "Error" in return_value:
+        return flask.jsonify({"Status": "Failure", "Message": return_value})
+    else:
+        return flask.jsonify({"Status": "Success", "Credential": return_value})

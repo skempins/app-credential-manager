@@ -63,13 +63,15 @@ class CredentialStore:
     ########################
     """Retrieve a credential from the store."""
     def get_credential(self, name):
+        sql_stmt = "SELECT credential_id, credential_val FROM credential WHERE credential_nm = ?"
+
         ic("Getting credential for...")
         ic(name)
         return_value = {}
         try:
             with sqlite3.connect(self.db_file) as conn:
                 cursor = conn.cursor()
-                cursor.execute("SELECT credential_id, credential_val FROM credential WHERE credential_nm = ?", [name])
+                cursor.execute(sql_stmt, [name])
                 for row in cursor.fetchall():
                     ic(row)
                     return_value['Name'] = name
@@ -82,21 +84,27 @@ class CredentialStore:
     ########################
     """Remove a credential from the store."""
     def delete_credential(self, name):
+        sql_stmt = "DELETE FROM credential WHERE credential_nm = ?"
+
         ic("Deleting credential...")
         ic(name)
         try:
             with sqlite3.connect(self.db_file) as conn:
-                conn.execute("DELETE FROM credential WHERE credential_nm = ?", [name])
+                conn.execute(sql_stmt, [name])
             return True
         except sqlite3.Error as e:
             return {"Error": str(e)}
 
     ########################
     def export_all(self):
+        sql_stmt = "SELECT credential_id, credential_nm, credential_val FROM credential"
+
+        ic("Exporting all credentials...")
+        print("ID, Name, Value")
         try:
             with sqlite3.connect(self.db_file) as conn:
                 cursor = conn.cursor()
-                cursor.execute("SELECT * FROM credential")
+                cursor.execute(sql_stmt)
                 for row in cursor.fetchall():
                     id, name, value = row
                     print(f'{id}; {name}; {value}')
